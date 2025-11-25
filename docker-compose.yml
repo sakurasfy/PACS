@@ -1,0 +1,22 @@
+version: '3.8'
+
+services:
+  pacs:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    image: pacs:latest
+    container_name: pacs
+    volumes:
+      # Mount data directory for input/output
+      - ./data:/app/data
+    environment:
+      - DATASET_NAME=Reed98
+    # Override default command if needed
+    # command: ["./main"]
+    # Allocate more resources if needed
+    deploy:
+      resources:
+        limits:
+          cpus: '4'
+          memory: 8G
