@@ -1,5 +1,7 @@
 # PACS: Privacy-Preserving Attribute-Driven Community Search over Attributed Graphs
 
+The PACS artifact is publicly available on Zenodo with the following DOI: https://doi.org/10.5281/zenodo.17811170
+
 ## Cryptographic Techniques
 
 - **BGN** (Boneh-Goh-Nissim) homomorphic encryption
