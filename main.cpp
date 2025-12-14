@@ -398,7 +398,7 @@ void Encrypt::printET(){
 int main(int argc, char** argv) {
 	timespec beginT, endT;
 
-	const std::string datasetname="Reed98";
+	const std::string datasetname="Simmons81";
 	const std::string cIndexfile="./data/output/"+datasetname+"-"+std::to_string(ATTRIBUTE_NUM)+"-Community.out";
 	const std::string eTablefile = "./data/output/"+datasetname+"-"+std::to_string(ATTRIBUTE_NUM)+"-Edge.out";
 
@@ -531,25 +531,33 @@ int main(int argc, char** argv) {
     }*/
     
 
-    int cIndexsizeMB=graph.cIndex.size()*sizeof(Community)>>20;//MB
-    int cIndexsizeKB=graph.cIndex.size()*sizeof(Community)>>10;//KB
+    size_t cIndex_bytes = 0;
+    for (const auto& c : graph.cIndex) {
+        cIndex_bytes += sizeof(c.id) + sizeof(c.core);
+        cIndex_bytes += sizeof(int) * c.avec.capacity();
+        cIndex_bytes += sizeof(int) * c.evec.capacity();
+    }
+    double cIndex_MB = cIndex_bytes / 1024.0 / 1024.0;
 
-    size_t totalSize = sizeof(fmpz) * 1 * (2*ATTRIBUTE_NUM+1)+sizeof(int)+sizeof(element_t)*(EDGES_NUM+1);
-    size_t cIndexsizeB=graph.cIndex.size()*sizeof(int)*(2+ATTRIBUTE_NUM+EDGES_NUM);//B
+    size_t eTable_bytes = graph.eTable.size() * sizeof(Edge);
+    double eTable_MB = eTable_bytes / 1024.0 / 1024.0;
 
-    int eTablesizeMB=graph.eTable.size()*sizeof(Edge)>>20;//MB
-    int eTablesizeKB=graph.eTable.size()*sizeof(Edge)>>10;//KB
 
-    int CIsizeMB=graph.CI.size()*sizeof(EncIndex)>>20;//MB
-    int CIsizeKB=graph.CI.size()*sizeof(EncIndex)>>10;//KB
-    int CIsizeB=graph.CI.size()*totalSize;//B
+    size_t CI_bytes = 0;
+    for (const auto& ci : graph.CI) {
+        CI_bytes += sizeof(ci.id);
+        CI_bytes += sizeof(element_t); // core
+        CI_bytes += sizeof(fmpz_mat_t)* (2*ATTRIBUTE_NUM+1); // avec
+        CI_bytes += sizeof(element_t) * EDGES_NUM; // evec
+    }
+    double CI_MB = CI_bytes / 1024.0 / 1024.0;
 
-    int ETsizeMB=EDGES_NUM*sizeof(EncET)>>20;//MB
-    int ETsizeKB=EDGES_NUM*sizeof(EncET)>>10;//KB
-    std::cout <<std::endl;
-    std::cout <<std::endl;
-    std::cout<<"----------------------------------------------"<<std::endl;
-    std::cout <<"Dataset："<<datasetname<<std::endl;
+    size_t ET_bytes = EDGES_NUM * sizeof(element_t) * 2;
+    double ET_MB = ET_bytes / 1024.0 / 1024.0;
+
+    std::cout << std::endl << std::endl;
+    std::cout << "----------------------------------------------" << std::endl;
+    std::cout << "Dataset：" << datasetname << std::endl;
     std::cout << "Vertex number：" << NODES_NUM << std::endl;
     std::cout << "Edge number：" << EDGES_NUM << std::endl;
     std::cout << "Attribute number：" << ATTRIBUTE_NUM << std::endl;
@@ -557,28 +565,14 @@ int main(int argc, char** argv) {
     std::cout << "time for builtCI (s)：" << TimeCI << std::endl;
     std::cout << "time for builtET (s)：" << TimeET << std::endl;
     std::cout << "time for 10 searches (s)：" << TimeSearch1 << std::endl;
-    //std::cout << "time for 200 searches：" << TimeSearch2 << std::endl;
-    //std::cout << "time for 300 searches：" << TimeSearch3 << std::endl;
-    //std::cout << "time for 400 searches：" << TimeSearch4 << std::endl;
-    //std::cout << "time for 500 searches：" << TimeSearch5 << std::endl;
-    std::cout << "single decryption time (s)：" << TimeDecrypt<< std::endl;
+    std::cout << "single decryption time (s)：" << TimeDecrypt << std::endl;
+    std::cout<<std::endl;
 
-    std::cout <<std::endl;
-    std::cout << "size of cIndex (MB)：" << cIndexsizeMB << std::endl;
-    std::cout << "size of CI (MB)：" << CIsizeMB << std::endl;
-    std::cout << "size of eTable (MB)：" << eTablesizeMB << std::endl;
-    std::cout << "size of ET (MB)：" << ETsizeMB << std::endl;
-    std::cout <<std::endl;
+    std::cout << std::fixed << std::setprecision(3);
+    std::cout << "size of cIndex (MB)：" << cIndex_MB << std::endl;
+    std::cout << "size of CI (MB)：" << CI_MB << std::endl;
+    std::cout << "size of eTable (MB)：" << eTable_MB << std::endl;
+    std::cout << "size of ET (MB)：" << ET_MB << std::endl;
 
-    std::cout << "size of cIndex (KB)：" << cIndexsizeKB << std::endl;
-    std::cout << "size of CI (KB)：" << CIsizeKB << std::endl;
-    std::cout << "size of eTable (KB)：" << eTablesizeKB << std::endl; 
-    std::cout << "size of ET (KB)：" << ETsizeKB << std::endl;
-    //std::cout << "(B)：" << matSize << std::endl;
-    //std::cout << "size of cIndex  (B)：" << cIndexsizeB << std::endl;
-    //std::cout << "   CI 索引大小(B)：" << CIsizeB << std::endl;
-
-    
-	
-	return(0);
+    return 0;
 }

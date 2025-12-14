@@ -9,10 +9,10 @@
 #include <BGN/BGN.h>
 #include "fmpz_mat.h"
 
-#define NODES_NUM 963// vertex number
-#define EDGES_NUM 18813 //edge number
+#define NODES_NUM 1519// vertex number
+#define EDGES_NUM 32989 //edge number
 #define ATTRIBUTE_NUM 20 //attribute number
-#define Max_Core 44 //max core number
+#define Max_Core 35 //max core number
 
 struct Community{
 	int id;//community id
